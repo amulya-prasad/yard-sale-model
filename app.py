@@ -1,8 +1,8 @@
 """Launch: python app.py  |  http://127.0.0.1:7860"""
 import gradio as gr
-from yard_sale_model.economy import simulate
-from yard_sale_model.rl import train_all, evaluate
-from yard_sale_model.plots import condensation_charts, rl_charts
+from src.economy import simulate
+from src.rl import train_all, evaluate
+from src.plots import condensation_charts, rl_charts
 
 with gr.Blocks(title="Yard Sale Model · Interactive Lab") as demo:
     gr.Markdown("# 🍞 Yard Sale Model\n**Fair trades. Unfair outcomes.** · Interactive Computational Economics")
