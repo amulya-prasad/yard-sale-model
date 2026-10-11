@@ -292,7 +292,7 @@ Potential extensions include:
 
 **Amulya Prasad**
 
-Independent computational experiments in economics, data science, and artificial intelligence.
+Independent computational experiments in Economics, Math and Physics using AI
 
 ---
 
