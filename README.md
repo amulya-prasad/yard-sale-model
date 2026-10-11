@@ -274,17 +274,7 @@ Results should be interpreted within these assumptions.
 
 ---
 
-## 8. Creative Storytelling
 
-The project also supports an educational storytelling concept featuring fictionalized versions of Walter, Jesse, and Gustavo.
-
-The narrative uses competing bread businesses to illustrate how wealth inequality can emerge even when trading rules appear fair.
-
-The scientific experiments are independent of the storytelling format.
-
-Any numbers used in educational videos should come from actual simulation results rather than illustrative artwork.
-
----
 
 ## 9. Future Directions
 
@@ -294,7 +284,6 @@ Potential extensions include:
 - Multiple training seeds and confidence intervals
 - Alternative reinforcement learning algorithms
 - Comparisons with modified wealth-exchange models
-- Interactive educational animations
 - More detailed statistical analysis of wealth concentration
 
 ---
