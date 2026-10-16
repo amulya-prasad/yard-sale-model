@@ -63,7 +63,7 @@ The **Gini coefficient** ranges from 0 for perfect equality toward 1 for extreme
 
 ### Tab 2 — Training Walter using RL
 
-![Reinforcement learning agents](assets/rl_agents.png)
+![Reinforcement learning agents](assets/training_walter.png)
 
 Uses `train_all()` and `evaluate()` from `src/rl_agents_new_strategy.py`.
 
@@ -112,6 +112,8 @@ Plots show rolling training success, recorded evaluation wealth paths, observed 
 
 ### Tab 3 — Walter, Jesse, Gus and 100 agents
 
+![RL_with_100 agents](assets/Exp_3.png)
+
 Uses `simulate_condensation()` in `src/rl_agents_new_strategy.py` and `condensation_animation_charts()` in `src/plots.py`.
 
 Runs **one new shared-economy simulation**, saves periodic snapshots, and lets you play, pause, reset, or scrub through:
@@ -124,7 +126,7 @@ Runs **one new shared-economy simulation**, saves periodic snapshots, and lets y
 Choose Walter's learned, fixed, random, or 100% wager strategy. **Train Walter in Tab 2 before selecting his learned policy**. A policy trained at a different population or horizon may not generalize reliably; the UI warns about horizon differences but does not enforce matching parameters for this tab.
 
 ### Tab 4 — The Final Showdown
-
+![Final Showdown](assets/Exp_4.png)
 Uses `train_showdown()`, `evaluate_showdown()`, and `simulate_showdown()` from `src/rl_agents_new_strategy.py`.
 
 This is a **separate three-person experiment**, with **no background agents**. Walter, Gustavo, and Jesse start with equal wealth:
