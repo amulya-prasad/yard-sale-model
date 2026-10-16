@@ -40,10 +40,10 @@ The independent stochastic simulation in `src/economy.py` chooses **one random p
 
 | Tab | Suggested display name | What it does |
 |---|---|---|
-| 1 | **Wealth Condensation · The Basics** | Runs a standard Yard Sale simulation and examines inequality at selected snapshots. |
-| 2 | **Bread Wars · Walter Learns** | Trains Walter in a larger shared economy and compares four Walter policies. Gustavo and Jesse do not learn. |
-| 3 | **Wealth Condensation · Live Replay** | Replays one recorded shared economy, highlighting the three characters and the evolving wealth distribution. |
-| 4 | **The Final Showdown · Three Bakers** | Trains a **separate** Walter policy in a three-person economy and animates the Walter–Gustavo–Jesse contest. |
+| 1 | **Wealth Condensation · Stochastic Simulation** | Runs a standard Yard Sale simulation and examines inequality at selected snapshots. |
+| 2 | **Training Walter using RL** | Trains Walter in a larger shared economy and compares four Walter policies. Gustavo and Jesse do not learn. |
+| 3 | **Walter, Jesse, Gus and 100 Agents** | Replays one recorded shared economy, highlighting the three characters and the evolving wealth distribution. |
+| 4 | **The Final Showdown** | Trains a **separate** Walter policy in a three-person economy and animates the Walter–Gustavo–Jesse contest. |
 
 Tabs 1 and 3 both examine wealth condensation, but **Tab 1 is the general statistical experiment**; **Tab 3 is an animated replay of the character-based economy**. Tabs 2 and 4 both involve Walter learning, but their **populations, trading rules, and learning updates differ**.
 
