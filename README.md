@@ -1,219 +1,162 @@
-# The Yard Sale Model
+# 🍞 Yard Sale Model
 
-### How Fair Trades Can Create Extreme Wealth Inequality
+### Fair trades. Unfair outcomes. · Interactive computational economics
 
-An interactive computational economics project exploring **wealth condensation, stochastic trading, and reinforcement learning** through a fictional competition between Walter, Gustavo, and Jesse.
-
-What happens when everyone starts equally wealthy, every transaction has a 50/50 outcome, and nobody can predict the next winner? Can changing a player's betting strategy change the *probability* of reaching a particular goal, even when every trade is fair?
+A Python simulation lab exploring **wealth condensation**, **fair stochastic exchanges**, and **reinforcement learning** through four interactive experiments. Walter, Gustavo, and Jesse bring different wagering strategies to a world where every coin flip is fair—but wealth can still become highly unequal.
 
 Built with **Python, NumPy, Plotly, and Gradio**.
 
-> **Fair transactions do not necessarily produce equal distributions of wealth.** A fair coin flip guarantees neither an equal outcome nor an equal final ranking.
+![Yard Sale Model poster](assets/yard_sale_poster.png)
+
+> **Research question:** Can Walter learn wager choices that improve his probability of reaching a particular wealth goal, even though no strategy changes the 50/50 odds of an individual trade?
+>
+> **Important:** This repository contains **tabular Q-learning** for the larger shared economy and **tabular Monte Carlo-style updates** for the three-person showdown. **PPO is not implemented in the four-tab app shown here.**
 
 ---
 
-## The Big Picture
+## 1. How the Yard Sale Model works
 
-![Yard Sale Model Poster](assets/yard_sale_poster.png)
+![Fair trades illustration](assets/fair_trades_illustration.png)
 
-The project has two related parts:
+In a closed economy, each person starts with the same wealth. At each **trade**, two different agents are selected at random, and one wins an amount from the other with probability 50%.
 
-1. **A conventional Yard Sale economy**, where randomly paired agents exchange a fraction of the poorer participant's wealth.
-2. **Character-based strategy experiments**, where Walter learns wager choices, Gustavo uses a fixed wager, and Jesse randomizes his wager.
-
-All simulations use a closed economy: money is transferred between participants rather than created or destroyed.
-
----
-
-## 1. The Yard Sale Model
-
-![Fair Trades Illustration](assets/fair_trades_illustration.png)
-
-Two agents, with wealth $w_i$ and $w_j$, trade a stake equal to a fraction of the poorer agent's wealth:
+For a wager fraction \(\beta\), the amount exchanged is:
 
 $$
 \Delta w = \beta\min(w_i,w_j)
 $$
 
-The outcome is determined by a fair coin flip. If agent $i$ wins:
+If agent \(i\) wins, its wealth increases by \(\Delta w\) while agent \(j\)'s wealth decreases by the same amount; if \(j\) wins, the transfer is reversed.
 
-$$
-w_i' = w_i + \Delta w, \qquad w_j' = w_j - \Delta w
-$$
+**Example:** Walter and Jesse each have $100. With a 20% wager, the stake is $20. One ends with $120 and the other with $80. In their next trade, a 20% stake is based on the *poorer* agent's $80, so the stake becomes $16.
 
-If agent $j$ wins, the signs are reversed. Each participant has a 50% chance of winning, and the total wealth remains constant:
+The game conserves total wealth, and each individual trade has zero expected transfer. Nevertheless, repeated random exchanges can generate very unequal wealth distributions. Fair *transactions* do not guarantee an equal *distribution*.
 
-$$
-\sum_{i=1}^{N}w_i(t) = \sum_{i=1}^{N}w_i(0)
-$$
-
-**Example:** Walter and Jesse each begin with 100 units. At a 20% wager, 20 units change hands. If Walter wins, their wealth becomes 120 and 80. On the next trade, the same 20% rule puts only $0.2\times80=16$ units at stake. The poorer player's wealth determines the size of the transfer.
-
-The model isolates the effects of repeated random exchange; it does not model salaries, production, taxation, credit, or differences in skill.
+The independent stochastic simulation in `src/economy.py` chooses **one random pair per trade**, not a simultaneous round in which everybody trades.
 
 ---
 
-## 2. Experiment One: Wealth Condensation
+## 2. The four dashboard tabs
 
-![Stochastic Simulation](assets/stochastic_sim.png)
+| Tab | Suggested display name | What it does |
+|---|---|---|
+| 1 | **Wealth Condensation · The Basics** | Runs a standard Yard Sale simulation and examines inequality at selected snapshots. |
+| 2 | **Bread Wars · Walter Learns** | Trains Walter in a larger shared economy and compares four Walter policies. Gustavo and Jesse do not learn. |
+| 3 | **Wealth Condensation · Live Replay** | Replays one recorded shared economy, highlighting the three characters and the evolving wealth distribution. |
+| 4 | **The Final Showdown · Three Bakers** | Trains a **separate** Walter policy in a three-person economy and animates the Walter–Gustavo–Jesse contest. |
 
-The baseline simulation in `src/economy.py` begins with equal wealth and executes a configurable number of random trades. For each trade, it samples **two distinct agents**, applies the same fixed wager fraction, and chooses the winner with equal probability.
+Tabs 1 and 3 both examine wealth condensation, but **Tab 1 is the general statistical experiment**; **Tab 3 is an animated replay of the character-based economy**. Tabs 2 and 4 both involve Walter learning, but their **populations, trading rules, and learning updates differ**.
 
-The simulation records snapshots of the wealth distribution and tracks:
+### Tab 1 — Wealth Condensation · The Basics
 
-- **Gini coefficient:** a summary measure of wealth inequality, ranging from 0 for equality toward 1 for extreme concentration.
-- **Richest-agent wealth share:** the fraction of total wealth held by the single richest participant.
-- **Wealth distribution snapshots:** how individual fortunes change across the simulation.
-- **Lorenz curve and related plots:** visual summaries of inequality in the Gradio dashboard.
+![Wealth condensation simulation](assets/stochastic_sim.png)
 
-The baseline simulator checks that total wealth is conserved at the end of the run. It uses **one randomly selected pair per trade**, not a simultaneous pairing of every participant each round.
+Runs `simulate()` in `src/economy.py` with configurable population, starting wealth, wager fraction, number of trades, and random seed.
 
----
+Displays:
 
-## 3. Experiment Two: Walter, Gustavo, and Jesse in One Economy
+- Gini coefficient and richest-agent wealth share over time.
+- Ranked wealth distribution at the selected snapshot.
+- Lorenz curve and snapshot statistics.
 
-![Reinforcement Learning Agents](assets/rl_agents.png)
+The **Gini coefficient** ranges from 0 for perfect equality toward 1 for extreme concentration. The model also records the share held by the richest agent.
 
-The larger-population strategy experiment is implemented in **`src/rl_agents_new_strategy.py`**. All three named characters coexist with additional background agents in the *same simulated town*.
+### Tab 2 — Bread Wars · Walter Learns
+
+![Reinforcement learning agents](assets/rl_agents.png)
+
+Uses `train_all()` and `evaluate()` from `src/rl_agents_new_strategy.py`.
+
+All characters coexist in the **same simulated town** (100 agents by default):
 
 | Character | Strategy | Reported goal |
 |---|---|---|
-| **Walter — Concentrator** | Learns wager choices using a tabular Q-value policy | Hold at least **25% of the town's total wealth** |
-| **Gustavo — Capitalist** | Uses the fixed wager (20% by default) | Finish in the **top 10%** by rank |
-| **Jesse — Grower** | Selects a wager fraction randomly | Finish with at least **150% of starting wealth** |
+| **Walter** | Learns a tabular Q-value policy | Finish **strictly in the richest 1%** during training; a **25% share of total town wealth** is tracked separately as a more demanding diagnostic |
+| **Gustavo** | Fixed wager (20% by default) | Finish in the top 10%, using the code's conservative tie rule |
+| **Jesse** | Random wager from the allowed action set | Finish with at least 150% of starting wealth |
+| **Other bakers** | Fixed wager | Background population; no separate learning |
 
-**Only Walter learns.** Gustavo and Jesse do not have separately trained Q-tables. Their goal outcomes are measured after each shared-economy episode.
+**Only Walter learns.** Gustavo and Jesse are not separate RL models; their success curves are recorded during Walter's training.
 
-### Walter's training target versus the displayed diagnostics
+#### Walter's observations and actions
 
-There are **two different success measures** in the implementation:
+Walter's tabular state includes:
 
-- Walter's **training success signal** is a **top-1% finish** (for 100 agents, a strict first-place finish).
-- Walter's named **Concentrator diagnostic** checks whether he owns **at least 25% of all wealth**.
+1. The fraction of other bakers richer than Walter (binned).
+2. Walter's wealth divided by the town's mean wealth (binned).
+3. The selected opponent's wealth relative to Walter's (binned).
+4. The fraction of the episode completed (binned).
 
-These are not equivalent. A player can finish first without holding a quarter of the economy. The README and plots should not treat the 25% threshold as the terminal reward used to train Walter.
+Available wager fractions are **0%, 2%, 5%, 10%, 20%, 40%, 80%, and 100%**. Disabling the *Allow 0% wager* option removes the zero-wager choice from Walter's and Jesse's action sampling. In this tab, choosing 0% results in **no wealth transfer**, but the selected trade still consumes a step.
 
-### What Walter observes
+#### How Walter learns
 
-Before a trade involving Walter, the code discretizes four observations:
+Walter's larger-economy learner uses **tabular, epsilon-greedy Q-learning-style updates**, with a bounded **intermediate potential-difference shaping signal** and a final top-1% success reward. It is **not** pure terminal-only Monte Carlo learning. The implementation updates Walter's Q-table when Walter next encounters a trade and once at episode end.
 
-1. **Relative rank:** the fraction of other participants richer than Walter.
-2. **Relative wealth:** Walter's wealth divided by the town's mean wealth.
-3. **Opponent wealth ratio:** the selected opponent's wealth relative to Walter's.
-4. **Episode progress:** how far the simulation has advanced.
+An episode contains a configurable number of **total town trades**. Each trade selects one random pair; Walter is **not** guaranteed to trade at every step. The other participants keep their specified fixed or random wager rules.
 
-These observations index a tabular Q-value array. Walter selects a wager using an exploration-versus-exploitation policy: sometimes he tries a random permitted wager, and otherwise he chooses an action with a high estimated Q-value.
+#### Evaluation
 
-The available wager fractions are:
+Walter is evaluated with four alternative policies:
 
-`0%, 2%, 5%, 10%, 20%, 40%, 80%, 100%`
+- **Learned (`rl`)** — choose from Walter's trained Q-table.
+- **Fixed (`baseline`)** — use the configured background wager.
+- **Random (`random`)** — draw a wager from the allowed action set.
+- **Aggressive (`aggressive`)** — always wager 100%.
 
-The **0% action is optional** and can be disabled in the dashboard.
+Gustavo and Jesse remain in every evaluation economy, regardless of Walter's policy. Therefore, their reported results are **conditional on Walter's strategy**—the comparison columns do not represent four separately trained character models.
 
-### How the larger-economy learning works
+Plots show rolling training success, recorded evaluation wealth paths, observed wager frequencies, and each character's goal-success rate under each Walter policy. The evaluation also calculates wealth rank, wealth shares, Gini, and top-wealth concentration metrics.
 
-Walter's learning update in this experiment is **not pure terminal-only Monte Carlo control**. It uses a tabular **bootstrapped Q-value update with a shaped intermediate signal**, based on changes in a bounded wealth-related potential. A terminal top-1% success indicator is included at the final update.
+**Interpretation caution:** The evaluation policies use different seeded random streams; the current implementation does **not** guarantee paired, identical coin flips and matchups across policy alternatives. It does not calculate confidence intervals or train across multiple seeds automatically. A learned policy is not guaranteed to outperform the baselines.
 
-That distinction is important: the shaping signal influences what Walter learns, so the experiment should not be described as training exclusively from a final binary reward.
+### Tab 3 — Wealth Condensation · Live Replay
 
-### Trading convention
+Uses `simulate_condensation()` in `src/rl_agents_new_strategy.py` and `condensation_animation_charts()` in `src/plots.py`.
 
-One randomly selected pair trades per step. Walter chooses the stake fraction **when he participates**; Jesse randomizes the stake fraction **when he participates in a trade that does not involve Walter**; other trades use the fixed background fraction. In a Walter–Jesse trade, Walter's selected fraction takes precedence.
+Runs **one new shared-economy simulation**, saves periodic snapshots, and lets you play, pause, reset, or scrub through:
 
-Consequently, participants are **not guaranteed to trade once per step**, and Walter does not control every trade in the economy.
+- Gini and top 1%, 5%, and 10% wealth shares.
+- Ranked wealth distribution, highlighting Walter, Gustavo, and Jesse.
+- All three characters' wealth trajectories.
+- Lorenz curve and current wealth statistics.
 
-### Evaluation and baselines
+Choose Walter's learned, fixed, random, or 100% wager strategy. **Train Walter in Tab 2 before selecting his learned policy**. A policy trained at a different population or horizon may not generalize reliably; the UI warns about horizon differences but does not enforce matching parameters for this tab.
 
-The evaluation reruns the shared economy under four alternative **Walter policies**:
+### Tab 4 — The Final Showdown · Three Bakers
 
-| Walter policy | Behavior |
-|---|---|
-| `rl` | Uses Walter's learned Q-table |
-| `baseline` | Uses the fixed background wager |
-| `random` | Chooses a random permitted wager |
-| `aggressive` | Always wagers 100% |
+Uses `train_showdown()`, `evaluate_showdown()`, and `simulate_showdown()` from `src/rl_agents_new_strategy.py`.
 
-Gustavo and Jesse remain present in **every** evaluation run. Their measured outcomes can change when Walter's policy changes, even though Gustavo and Jesse do not learn.
+This is a **separate three-person experiment**, with **no background agents**. Walter, Gustavo, and Jesse start with equal wealth:
 
-Reported metrics include goal-success rates, median wealth, average rank, strict-first-place frequency, Gini coefficient, and wealth shares held by the richest 1%, 5%, and 10% of agents. The dashboard also plots training behavior, wealth trajectories, and betting policies.
+- **Walter** trains a fresh Q-table to finish **strictly first**.
+- **Gustavo** always proposes the configured fixed wager.
+- **Jesse** proposes a random wager.
 
-Evaluation uses new seeded simulations, with separate random streams for Walter's policy comparisons. **Success in one run does not establish that a strategy consistently outperforms the alternatives.**
+In contrast to Tabs 1–3, **both selected bakers propose a wager**, and the effective fraction is the **average of their two proposals**:
+
+$$
+\beta_{\mathrm{effective}} = \frac{\beta_i+\beta_j}{2}, \qquad
+\Delta w = \beta_{\mathrm{effective}}\min(w_i,w_j)
+$$
+
+The winner is still determined by a fair 50/50 coin flip. A **0% proposal by Walter does not cancel a trade** when the other participant proposes a positive wager.
+
+Walter observes his wealth relative to Gustavo and Jesse, which opponent he faces, and episode progress. Training uses **terminal binary rewards**: 1 for a strict first-place finish, otherwise 0. Each recorded Walter decision receives a constant-step-size **Monte Carlo-style update** from the final outcome.
+
+The tab provides:
+
+- Walter's rolling training first-place rate.
+- Repeated-showdown first-place rates for Walter, Gustavo, and Jesse under four Walter policies.
+- An animated three-bar wealth chart and wealth trajectories.
+
+The learned showdown policy must be trained **in Tab 4**; it is not interchangeable with the Tab 2 Q-table. The app requires matching horizon, initial wealth, and Gustavo wager for learned showdown playback.
 
 ---
 
-## 4. Experiment Three: Watch Wealth Condense
+## 3. Running locally
 
-The third Gradio tab animates a **single shared economy** over many random trades. Walter, Gustavo, and Jesse appear alongside the background population.
-
-Choose Walter's strategy (`rl`, `baseline`, `random`, or `aggressive`), run the simulation, then play, pause, or scrub through recorded snapshots.
-
-The animation records:
-
-- Gini coefficient over time.
-- Wealth shares of the richest 1%, 5%, and 10%.
-- Wealth trajectories of Walter, Gustavo, and Jesse.
-- Full-population wealth snapshots for distribution and Lorenz plots.
-
-This is a **simulation/playback mode**: it does not update Walter's Q-table during playback. To use the learned policy, first train Walter in the second tab. A policy trained with different settings may not generalize reliably.
-
----
-
-## 5. Experiment Four: The Bread Wars — Three-Character Showdown
-
-The fourth tab is a **separate three-person experiment**, with **no background agents**. Walter, Gustavo, and Jesse begin with identical wealth and repeatedly trade in randomly selected pairs.
-
-| Character | Showdown behavior |
-|---|---|
-| **Walter** | Learns wager proposals intended to maximize strict first-place finishes |
-| **Gustavo** | Proposes the same fixed wager fraction |
-| **Jesse** | Proposes a randomly selected wager fraction |
-
-### How a showdown trade differs
-
-In this mode, **both selected participants propose a wager fraction**. The stake fraction is their average:
-
-$$
-\beta_{\mathrm{trade}} = \frac{\beta_i+\beta_j}{2}
-$$
-
-The amount transferred is still determined by the poorer participant's wealth:
-
-$$
-\Delta w=\beta_{\mathrm{trade}}\min(w_i,w_j)
-$$
-
-For example, if Walter proposes 80% and Gustavo proposes 20%, the trade uses a **50%** wager fraction. A 0% proposal from Walter does **not** cancel the other participant's wager.
-
-### How Walter learns in the showdown
-
-This is the part of the project that uses **episodic terminal-reward Monte Carlo-style updates**. Walter's showdown Q-table is separate from his larger-economy Q-table. The observations describe his wealth relative to Gustavo and Jesse, the opponent, and the progress of the showdown.
-
-After each showdown, Walter receives **1 if he finishes strictly first**, or **0 otherwise**. His visited state-action values are updated using that final result. Gustavo and Jesse remain non-learning competitors.
-
-The dashboard compares Walter's learned policy with fixed-wager, random-wager, and always-100% policies. It displays training win rates, strict-first-place results for all three characters, animated wealth bars, and wealth trajectories.
-
-**Important:** The three-person showdown and the larger-population experiment use different wager-setting conventions and different learning updates. Their success rates should not be compared as if they came from identical environments.
-
----
-
-## 6. Interactive Dashboard
-
-Launch `app.py` to open four Gradio tabs:
-
-| Tab | What you can do |
-|---|---|
-| **1 · Wealth Condensation** | Run the baseline stochastic model and explore inequality snapshots |
-| **2 · Walter vs Gustavo vs Jesse · RL** | Train Walter in a shared town and compare strategy outcomes |
-| **3 · Watch Wealth Condense** | Animate wealth concentration and character trajectories |
-| **4 · Walter vs Gustavo vs Jesse · Showdown** | Train Walter for a three-person first-place contest and animate the competition |
-
-Plots and statistics are computed from simulations rather than fabricated examples. The README does **not** claim that PPO is connected to this dashboard: the provided `app.py` imports the tabular implementation in `src/rl_agents_new_strategy.py`.
-
----
-
-## 7. Run Locally
-
-### Clone the repository
+### Clone and enter the project
 
 ```bash
 git clone https://github.com/amulya-prasad/yard-sale-model.git
@@ -236,97 +179,78 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1
 ```
 
-### Install dependencies
+### Install dependencies and launch
 
 ```bash
-python -m pip install -r requirements.txt
-```
-
-The application requires NumPy, Gradio, and Plotly. If your requirements file is missing one of these packages, add it before running.
-
-### Start the dashboard
-
-```bash
+pip install -r requirements.txt
 python app.py
 ```
 
-Open **http://127.0.0.1:7860**.
+Open **http://127.0.0.1:7860** in your browser. Training can take several minutes or longer, depending on episode count, town size, and number of evaluation trials.
 
-### Run the strategy module directly
-
-The strategy file also includes a command-line demonstration that trains Walter, evaluates the shared economy, runs a longer condensation simulation, and saves a compressed NumPy snapshot archive:
+### Optional: run the shared-economy script directly
 
 ```bash
 python -m src.rl_agents_new_strategy
 ```
 
-This can be computationally intensive with the configured training and simulation lengths. The direct-run example saves `wealth_condensation_snapshots.npz` in the current working directory.
+Its `__main__` block trains Walter, evaluates the characters, simulates long-run wealth condensation, prints summary statistics, and writes `wealth_condensation_snapshots.npz` to the working directory. This can be computationally expensive.
 
 ---
 
-## 8. Project Structure
+## 4. Project structure
 
 ```text
 yard-sale-model/
-├── app.py
+├── app.py                       # Four-tab Gradio dashboard
 ├── README.md
 ├── requirements.txt
 ├── .gitignore
 ├── src/
 │   ├── __init__.py
-│   ├── economy.py
-│   ├── plots.py
-│   └── rl_agents_new_strategy.py
-├── assets/
-│   ├── yard_sale_poster.png
-│   ├── fair_trades_illustration.png
-│   ├── stochastic_sim.png
-│   └── rl_agents.png
-└── outputs/                    # optional location for exported results
+│   ├── economy.py               # Fair trades, Gini, basic simulation
+│   ├── rl_agents_new_strategy.py # Shared-economy RL and three-person showdown
+│   └── plots.py                 # Plotly visualizations
+└── assets/
+    ├── yard_sale_poster.png
+    ├── fair_trades_illustration.png
+    ├── stochastic_sim.png
+    └── rl_agents.png
 ```
 
-The tree lists the **files required or referenced by the provided current scripts**, not an independently verified inventory of your GitHub repository. Your local repository may also contain earlier experiments, test files, or PPO prototypes.
-
-| File | Purpose |
-|---|---|
-| `app.py` | Four-tab Gradio interface |
-| `src/economy.py` | Baseline fair-trade simulation, Gini, and wealth conservation |
-| `src/rl_agents_new_strategy.py` | Shared-economy learning, policy evaluation, condensation playback, and separate three-person showdown |
-| `src/plots.py` | Plotly chart functions used by the dashboard |
-| `assets/` | Illustrations and experiment imagery |
-| `outputs/` | Optional directory for future exported results |
+The structure above lists the files used by the provided application. Additional folders (such as `tests/` or `outputs/`) may exist in your checkout; they are not required by the code shown here.
 
 ---
 
-## 9. Assumptions and Limitations
+## 5. Experimental assumptions and limitations
 
-- **Stylized closed economy:** No production, income, debt, taxes, or redistribution.
-- **Fair trade outcomes:** Each trade winner is chosen with equal probability; betting policies influence the *size* of transfers, not the coin flip.
-- **Random pairing:** Each step samples one pair; there is no guarantee that every baker trades equally often over a finite run.
-- **Different learning methods:** The larger shared-economy experiment uses bootstrapped Q-value updates with a shaping signal; the three-person showdown uses terminal-reward Monte Carlo-style updates.
-- **Only Walter learns:** Gustavo and Jesse follow fixed or random strategies, respectively.
-- **Different trading conventions:** The shared economy uses one applicable wager fraction per trade; the showdown averages both participants' proposals.
-- **Optional zero wager:** In the shared economy, a 0% wager can prevent a wealth transfer when Walter controls the selected trade; in the showdown, a 0% *proposal* does not necessarily make the stake zero.
-- **Finite-run variability:** A strategy can appear successful due to luck. Robust comparisons require independent training seeds, many evaluation episodes, and uncertainty intervals.
-- **Numerical behavior:** Very small wealth values and ties can affect rankings and terminal goal definitions.
-- **Not a forecast:** The simulations demonstrate properties of simplified models, not predictions about real financial markets.
+- **Closed economy:** No production, income, borrowing, taxation, or injection of new wealth.
+- **Fair coin flips:** Each selected trade has an independent 50/50 winner; the strategy changes the **stake**, not the probability of winning.
+- **Conserved wealth:** Each transfer adds and subtracts the same amount. The basic simulation explicitly checks conservation at the end.
+- **Random pair selection:** Tabs 1–3 use one random pair per trade, **not** a perfect matching of every baker in each round.
+- **Different wager convention in Tab 4:** The three-person showdown averages both participants' proposed wagers; it should not be treated as the same trading protocol as the larger economy.
+- **Different learning algorithms:** The shared-economy Walter uses intermediate shaping and Q-learning-style bootstrapping; showdown Walter uses terminal-outcome Monte Carlo-style updates.
+- **Different goals:** Walter's Tab 2 training reward is a strict top-1% finish. His 25%-of-total-wealth outcome is a separately reported diagnostic. Tab 4 trains for strict first place among three.
+- **Ties matter:** The code defines success using explicit strict or conservative comparisons. At very low wealth levels, floating-point precision can also matter.
+- **Statistical uncertainty:** Results vary with seeds and simulation settings. Current evaluation reports empirical rates but no confidence intervals or multi-seed training summaries.
+- **No promised RL advantage:** Fair trades remain fair in expectation. A policy may alter the probability of reaching a threshold without increasing expected wealth, and may perform worse than simple baselines.
+- **Model, not forecast:** The Yard Sale Model is a deliberately stylized computational experiment, not a prediction of real-world economic outcomes.
 
 ---
 
-## 10. Future Directions
+## 6. Possible next experiments
 
-- Evaluate training stability over multiple random seeds and report confidence intervals.
-- Export reproducible CSV datasets for figures and the accompanying video essay.
-- Compare tabular learning with **PPO** in a carefully matched environment.
-- Investigate policy behavior by rank, opponent wealth, and time remaining.
-- Extend the analysis to an affine wealth model with redistribution, using explicitly documented assumptions.
+- Run multiple training seeds and report confidence intervals for goal success.
+- Compare policies using paired pre-generated matchups and coin-flip streams.
+- Compare Q-learning and PPO under a genuinely identical environment and reward definition.
+- Examine sensitivity to the ability to wager 0%.
+- Explore larger populations, alternative exchange rules, and models with external wealth flows.
 
 ---
 
 ## Author
 
-**Amulya Prasad**
-
+**Amulya Prasad**  
 Independent computational experiments in economics, mathematics, and physics using AI.
 
-*An exploration of how randomness, incentives, and repeated interactions can shape the distribution of wealth.*
+*An exploration of how randomness, incentives, and repeated interactions shape the distribution of wealth.*

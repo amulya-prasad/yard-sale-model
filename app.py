@@ -193,7 +193,7 @@ with gr.Blocks(title='Yard Sale Model · Interactive Lab', theme=gr.themes.Soft(
     trained_models = gr.State(None)
 
     with gr.Tabs():
-        with gr.Tab('1 · Wealth Condensation'):
+        with gr.Tab('1 · Wealth Condensation:Stochastic Simulation'):
             gr.Markdown('### Can fair coin-flip trades concentrate almost all the wealth?')
             with gr.Row():
                 n = gr.Slider(10, 300, value=100, step=10, label='Agents')
@@ -214,7 +214,7 @@ with gr.Blocks(title='Yard Sale Model · Interactive Lab', theme=gr.themes.Soft(
                       [c1, c2, c3, summary, frame, stochastic_state])
             frame.change(select_stochastic, [frame, stochastic_state], [c1, c2, c3, summary])
 
-        with gr.Tab('2 · Walter vs Gustavo vs Jesse · RL'):
+        with gr.Tab('2 · Training Walter using RL'):
             gr.Markdown('### Three characters in one economy\n'
                         '**Walter:** Q-learning, trains for richest 1% (25% share is a stricter diagnostic). '
                         '**Gustavo:** fixed wager, top 10% goal. '
@@ -243,7 +243,7 @@ with gr.Blocks(title='Yard Sale Model · Interactive Lab', theme=gr.themes.Soft(
             train.click(run_rl, [rn, ri, rb, episodes, horizon, trials, rseed, allow_skip],
                         [training, paths, policies, comparison, results_text, trained_models])
 
-        with gr.Tab('3 · Watch Wealth Condense'):
+        with gr.Tab('3 · Walter,Jesse, Gus and 100 Agents'):
             gr.Markdown('### Watch inequality emerge from fair trades\n'
                         'Run a **single shared economy**, automatically capture snapshots, '
                         'then play, pause, or scrub through the recorded wealth distribution. '
@@ -287,7 +287,7 @@ with gr.Blocks(title='Yard Sale Model · Interactive Lab', theme=gr.themes.Soft(
             timer.tick(tick_animation, [aframe, astate, playing], [aframe, playing, play, timer])
 
 
-        with gr.Tab('4 · Walter vs Gustavo vs Jesse · Showdown'):
+        with gr.Tab('4 · The Final Showdown'):
             gr.Markdown(
                 '### The Bread Wars · Three-character showdown\n'
                 '**Only Walter, Gustavo, and Jesse trade.** Each begins with the same wealth. '
