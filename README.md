@@ -47,7 +47,7 @@ The independent stochastic simulation in `src/economy.py` chooses **one random p
 
 Tabs 1 and 3 both examine wealth condensation, but **Tab 1 is the general statistical experiment**; **Tab 3 is an animated replay of the character-based economy**. Tabs 2 and 4 both involve Walter learning, but their **populations, trading rules, and learning updates differ**.
 
-### Tab 1 — Wealth Condensation · The Basics
+### Tab 1 — Wealth Condensation: Stochastic Simulation
 
 ![Wealth condensation simulation](assets/stochastic_sim.png)
 
@@ -61,7 +61,7 @@ Displays:
 
 The **Gini coefficient** ranges from 0 for perfect equality toward 1 for extreme concentration. The model also records the share held by the richest agent.
 
-### Tab 2 — Bread Wars · Walter Learns
+### Tab 2 — Training Walter using RL
 
 ![Reinforcement learning agents](assets/rl_agents.png)
 
@@ -110,7 +110,7 @@ Plots show rolling training success, recorded evaluation wealth paths, observed 
 
 **Interpretation caution:** The evaluation policies use different seeded random streams; the current implementation does **not** guarantee paired, identical coin flips and matchups across policy alternatives. It does not calculate confidence intervals or train across multiple seeds automatically. A learned policy is not guaranteed to outperform the baselines.
 
-### Tab 3 — Wealth Condensation · Live Replay
+### Tab 3 — Walter, Jesse, Gus and 100 agents
 
 Uses `simulate_condensation()` in `src/rl_agents_new_strategy.py` and `condensation_animation_charts()` in `src/plots.py`.
 
@@ -123,7 +123,7 @@ Runs **one new shared-economy simulation**, saves periodic snapshots, and lets y
 
 Choose Walter's learned, fixed, random, or 100% wager strategy. **Train Walter in Tab 2 before selecting his learned policy**. A policy trained at a different population or horizon may not generalize reliably; the UI warns about horizon differences but does not enforce matching parameters for this tab.
 
-### Tab 4 — The Final Showdown · Three Bakers
+### Tab 4 — The Final Showdown
 
 Uses `train_showdown()`, `evaluate_showdown()`, and `simulate_showdown()` from `src/rl_agents_new_strategy.py`.
 
