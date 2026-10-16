@@ -63,7 +63,7 @@ The **Gini coefficient** ranges from 0 for perfect equality toward 1 for extreme
 
 ### Tab 2 — Training Walter using RL
 
-![Reinforcement learning agents](assets/training_walter.png)
+![Reinforcement learning agents](assets/Training_Walter.png)
 
 Uses `train_all()` and `evaluate()` from `src/rl_agents_new_strategy.py`.
 
